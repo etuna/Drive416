@@ -1,5 +1,6 @@
 package Follower;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -88,20 +89,33 @@ public class MasterConnection {
 		try {
 			System.out.println("File uploading... File name:"+f.getName());
 			dataSocket = new DatagramSocket();
-			FileInputStream fileInputStream = new FileInputStream(f);
+			FileInputStream fileInputStream = new FileInputStream(f);			
+			DataInputStream dataInputStream = new DataInputStream(fileInputStream);
 			
 			int fileSize = (int) f.length();
 			
 			byte[] data = new byte[fileSize];
+			byte[] incomingData = new byte[1024];
 			
-			for(int i = 0; i<fileSize;i++) {
-				data[i] = (byte)fileInputStream.read();
+			int read = 0;
+			int numRead = 0;
+			
+			while(read < data.length && (numRead = dataInputStream.read(data, read, data.length - read)) >= 0) {
+				read += numRead;
 			}
 			
 			DatagramPacket datagramPacket = new DatagramPacket(data, data.length, Inet4Address.getLocalHost(), DEFAULT_DATAGRAM_PORT);
 			dataSocket.send(datagramPacket);
 			
+			System.out.println("File "+f.getName()+" has been sent to the master.");
+			
+			DatagramPacket incomingPacket =  new DatagramPacket(incomingData, incomingData.length);
+			dataSocket.receive(incomingPacket);
+			String response = ""+incomingPacket.getData().toString();
+			System.out.println("Response from Master: "+response);
+			
 			fileInputStream.close();
+			dataInputStream.close();
 			dataSocket.close();
 			System.out.println("File upload complete. File sent:"+f.getName());
 			return true;
