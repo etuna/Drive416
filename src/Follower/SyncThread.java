@@ -14,7 +14,7 @@ public class SyncThread implements Runnable {
 	public int MasterPort;
 	public MasterConnection master_connection;
 	public Follower follower;
-	public ArrayList<String> oldFiles, currentFiles, localCurrentFiles;
+	public ArrayList<String> currentFiles, localCurrentFiles;
 	public static ArrayList<SyncPair<Integer, File>> syncFiles;
 	private BufferedReader br;
 	private PrintWriter pw;
@@ -83,26 +83,33 @@ public class SyncThread implements Runnable {
 			e.printStackTrace();
 		}
 		return null;
-
 	}
 
-	public ArrayList<SyncPair<Integer, File>> compareFiles(ArrayList<String> currentFiles) {
+	public ArrayList<SyncPair<Integer, File>> compareFiles(ArrayList<String> currentFiles,ArrayList<String> localCurrentFiles) {
 		syncFiles.clear();
 
-		oldFiles = follower.files;
+		//sync follower
+		ArrayList<String> oldFiles = follower.files;
+		
 		this.currentFiles = currentFiles;
 
 		for (String f : currentFiles) {
-			if (!oldFiles.contains(f)) {
-				syncFiles.add(new SyncPair(1, f));
+			if (!localCurrentFiles.contains(f)) {
+				syncFiles.add(new SyncPair(1, f)); //Download
 			}
 		}
 		for (String f : oldFiles) {
 			if (!currentFiles.contains(f)) {
-				syncFiles.add(new SyncPair(0, f));
+				syncFiles.add(new SyncPair(0, f)); //Remove
 			}
 		}
-
+		for(String f: localCurrentFiles) {
+			if(!currentFiles.contains(f)) {
+				syncFiles.add(new SyncPair(2,f)); //Upload
+			}
+		}
+		
+		follower.files = localCurrentFiles;
 		return syncFiles;
 	}
 
