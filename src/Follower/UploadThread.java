@@ -6,6 +6,7 @@ public class UploadThread implements Runnable {
 	
 	public MasterConnection master_connection;
 	public Follower follower;
+
 	
 	public UploadThread() {
 		master_connection = Main.master_connection;
@@ -14,6 +15,8 @@ public class UploadThread implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+		
+		
 		
 	}
 	public void Start() {

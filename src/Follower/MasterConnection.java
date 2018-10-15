@@ -147,7 +147,7 @@ public class MasterConnection {
 			fileOutputStream.close();
 			System.out.println("File "+filename+" successfully recieved.");
 			
-			
+			return true;
 			
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block

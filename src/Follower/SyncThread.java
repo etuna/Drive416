@@ -1,16 +1,22 @@
 package Follower;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class SyncThread implements Runnable{
 
-	
 	public String MasterIP;
 	public int MasterPort;
 	public MasterConnection master_connection;
 	public Follower follower;
 	public ArrayList<File> oldFiles, currentFiles;
-	public ArrayList<SyncPair<Integer, File>> syncFiles;
+	public static ArrayList<SyncPair<Integer, File>> syncFiles;
+    private BufferedReader is;
+    private PrintWriter os;
 	
 	@Override
 	public void run() {
@@ -28,6 +34,29 @@ public class SyncThread implements Runnable{
 	
 	public void Start() {
 		System.out.println("Sync Thread has been started.");
+	}
+	
+	public void getCurrentFiles() {
+		
+		try {
+			Socket socket = new Socket(master_connection.DEFAULT_SERVER_ADDRESS, master_connection.DEFAULT_SERVER_PORT);
+			
+			  is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	          os = new PrintWriter(socket.getOutputStream());
+
+	          System.out.println("Successfully connected to " + master_connection.DEFAULT_SERVER_ADDRESS + " on port " + master_connection.DEFAULT_SERVER_PORT);
+	          
+	          
+			
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 	}
 	
 	public ArrayList<SyncPair<Integer, File>> compareFiles(ArrayList<File> currentFiles) {
