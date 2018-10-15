@@ -2,5 +2,6 @@ TODOs
 OK	SyncThread - Get Files
 OK	SyncThread - CompareFiles
 OK	SyncThread - Get Local Files
+COMPLETE 	DownloadThread
 SyncThread RemoveFile
 SyncThread - Process

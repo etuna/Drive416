@@ -23,7 +23,7 @@ public class Main {
 		Init();
 		
 		//Sync Thread
-		syncThread = new SyncThread(MasterIP, MasterPort);
+		syncThread = new SyncThread();
 		syncThread.Start();
 		syncThread.run();
 		

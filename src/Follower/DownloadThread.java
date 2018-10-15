@@ -18,6 +18,7 @@ public class DownloadThread implements Runnable {
 	public MasterConnection master_connection;
 	public static final String DEFAULT_SERVER_ADDRESS = "localhost";
 	public int DEFAULT_DOWNLOAD_SOCKET_PORT = 6001;
+	public int DEFAULT_DOWNLOAD_DATASOCKET_PORT = 6002;
 	public Socket downloadSocket;
 	public static DatagramSocket dataSocket;
 	private BufferedReader br;
@@ -121,7 +122,7 @@ public class DownloadThread implements Runnable {
 
 		try {
 			System.out.println("File downloading... File name:" + filename);
-			dataSocket = new DatagramSocket(DEFAULT_DOWNLOAD_SOCKET_PORT);
+			dataSocket = new DatagramSocket(DEFAULT_DOWNLOAD_DATASOCKET_PORT);
 
 			byte[] data = new byte[fileSize];
 			String path = System.getProperty("user.home") + "/Desktop/GoogleDrive/" + filename;

@@ -22,6 +22,7 @@ public class MasterConnection {
 	public static final int DEFAULT_SERVER_PORT = 9999;
 	public static final int DEFAULT_DATAGRAM_UPLOAD_PORT = 6000;
 	public static final int DEFAULT_DATAGRAM_DOWNLOAD_PORT =7000;
+	public static final int DEFAULT_SYNC_PORT = 5000;
 	
 	//Variables
 	private String masterAddress;
