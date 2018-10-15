@@ -1,4 +1,6 @@
 TODOs
-SyncThread - Get Files
-SyncThread - CompareFiles
+OK	SyncThread - Get Files
+OK	SyncThread - CompareFiles
+OK	SyncThread - Get Local Files
+SyncThread RemoveFile
 SyncThread - Process
