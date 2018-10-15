@@ -136,14 +136,16 @@ public class MasterConnection {
 			
 			byte[] data = new byte[fileSize];
 			String path = System.getProperty("user.home") + "/Desktop/GoogleDrive/"+filename;
-			
-			FileOutputStream fileOutputStream = new FileOutputStream(path);
-			
+					
 			DatagramPacket datagramPacket = new DatagramPacket(data, fileSize);
-			
 			dataSocket.receive(datagramPacket);
 			
-			
+			File newFile = new File(path);
+			FileOutputStream fileOutputStream = new FileOutputStream(newFile);
+			fileOutputStream.write(data);
+			fileOutputStream.flush();
+			fileOutputStream.close();
+			System.out.println("File "+filename+" successfully recieved.");
 			
 			
 			
