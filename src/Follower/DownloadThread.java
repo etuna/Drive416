@@ -22,6 +22,7 @@ public class DownloadThread implements Runnable {
 	public static DatagramSocket dataSocket;
 	private BufferedReader br;
 	private PrintWriter pw;
+	public boolean downloadRun= true;
 
 	public DownloadThread() {
 		master_connection = Main.master_connection;
@@ -34,6 +35,18 @@ public class DownloadThread implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+		while(downloadRun) {
+			
+			try {
+				
+				downloadFiles(Main.syncFiles);
+				Thread.sleep(1000);
+				
+			} catch (InterruptedException | NumberFormatException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 	}
 
@@ -61,6 +74,7 @@ public class DownloadThread implements Runnable {
 	public boolean Disconnect() {
 
 		try {
+			downloadRun=false;
 			br.close();
 			pw.close();
 			downloadSocket.close();

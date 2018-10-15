@@ -1,5 +1,7 @@
 package Follower;
 
+import java.util.ArrayList;
+
 public class Main {
 
 	//Default Values
@@ -13,6 +15,7 @@ public class Main {
 	static SyncThread syncThread;
 	static UploadThread uploadThread;
 	public static MasterConnection master_connection;
+	public static ArrayList<SyncPair<Integer, String>> syncFiles;
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -35,6 +38,7 @@ public class Main {
 	public static boolean Init() {
 		
 		follower = Follower.getInstance();
+		syncFiles = new ArrayList<SyncPair<Integer, String>>();
 		setupMaster(DEFAULT_MASTER_IP, DEFAULT_MASTER_PORT);
 		return true;
 	}
