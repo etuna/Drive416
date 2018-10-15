@@ -14,6 +14,7 @@ public class Main {
 	public static int MasterPort;
 	static SyncThread syncThread;
 	static UploadThread uploadThread;
+	static DownloadThread downloadThread;
 	public static MasterConnection master_connection;
 	public static ArrayList<SyncPair<Integer, String>> syncFiles;
 	
@@ -25,11 +26,19 @@ public class Main {
 		//Sync Thread
 		syncThread = new SyncThread();
 		syncThread.Start();
+		syncThread.Connect();
 		syncThread.run();
+		
+		//Download Thread
+		downloadThread = new DownloadThread();
+		downloadThread.Start();
+		downloadThread.Connect();
+		downloadThread.run();
 		
 		//Upload Thread
 		uploadThread = new UploadThread();
 		uploadThread.Start();
+		uploadThread.Connect();
 		uploadThread.run();
 				
 	}
@@ -47,6 +56,7 @@ public class Main {
 		MasterIP = address;
 		MasterPort = port;
 		master_connection = MasterConnection.getInstance();
+		master_connection.Connect();
 	}
 	
 	
