@@ -25,10 +25,10 @@ public class MasterConnection {
 	//Variables
 	private String masterAddress;
 	private int masterPort;
-	private Socket socket;
-	private DatagramSocket dataSocket;
-	private BufferedReader br; //Input Stream
-	private PrintWriter pw; //Output Stream
+	public static Socket socket;
+	public static DatagramSocket dataSocket;
+	public static BufferedReader br; //Input Stream
+	public static PrintWriter pw; //Output Stream
 	public static MasterConnection master_connection;
 	
 	public static MasterConnection getInstance() {

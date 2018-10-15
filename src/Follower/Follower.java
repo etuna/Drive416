@@ -11,7 +11,7 @@ public class Follower {
 	public String IP;
 	public static Follower follower;
 	public boolean inited = false;
-	public static ArrayList<File> files;
+	public static ArrayList<String> files;
 	
 	
 	public static Follower getInstance() {
