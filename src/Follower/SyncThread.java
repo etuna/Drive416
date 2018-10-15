@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -15,7 +16,7 @@ public class SyncThread implements Runnable {
 	public MasterConnection master_connection;
 	public Follower follower;
 	public ArrayList<String> currentFiles, localCurrentFiles;
-	public static ArrayList<SyncPair<Integer, File>> syncFiles;
+	public static ArrayList<SyncPair<Integer, String>> syncFiles;
 	private BufferedReader br;
 	private PrintWriter pw;
 	private Socket socket;
@@ -85,7 +86,7 @@ public class SyncThread implements Runnable {
 		return null;
 	}
 
-	public ArrayList<SyncPair<Integer, File>> compareFiles(ArrayList<String> currentFiles,ArrayList<String> localCurrentFiles) {
+	public ArrayList<SyncPair<Integer, String>> compareFiles(ArrayList<String> currentFiles,ArrayList<String> localCurrentFiles) {
 		syncFiles.clear();
 
 		//sync follower
@@ -112,5 +113,6 @@ public class SyncThread implements Runnable {
 		follower.files = localCurrentFiles;
 		return syncFiles;
 	}
+	
 
 }

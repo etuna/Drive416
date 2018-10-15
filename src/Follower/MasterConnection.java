@@ -20,7 +20,8 @@ public class MasterConnection {
 	//Default Values
 	public static final String DEFAULT_SERVER_ADDRESS = "localhost";
 	public static final int DEFAULT_SERVER_PORT = 9999;
-	public static final int DEFAULT_DATAGRAM_PORT = 6666;
+	public static final int DEFAULT_DATAGRAM_UPLOAD_PORT = 6000;
+	public static final int DEFAULT_DATAGRAM_DOWNLOAD_PORT =7000;
 	
 	//Variables
 	private String masterAddress;
@@ -104,7 +105,7 @@ public class MasterConnection {
 				read += numRead;
 			}
 			
-			DatagramPacket datagramPacket = new DatagramPacket(data, data.length, Inet4Address.getLocalHost(), DEFAULT_DATAGRAM_PORT);
+			DatagramPacket datagramPacket = new DatagramPacket(data, data.length, Inet4Address.getLocalHost(), DEFAULT_DATAGRAM_UPLOAD_PORT);
 			dataSocket.send(datagramPacket);
 			
 			System.out.println("File "+f.getName()+" has been sent to the master.");
@@ -128,36 +129,7 @@ public class MasterConnection {
 		return false;
 	}
 	
-	public boolean downloadFile(String filename, int fileSize) throws IOException {
-		
-		try {
-			System.out.println("File downloading... File name:"+filename);
-			dataSocket = new DatagramSocket();
-			
-			byte[] data = new byte[fileSize];
-			String path = System.getProperty("user.home") + "/Desktop/GoogleDrive/"+filename;
-					
-			DatagramPacket datagramPacket = new DatagramPacket(data, fileSize);
-			dataSocket.receive(datagramPacket);
-			
-			File newFile = new File(path);
-			FileOutputStream fileOutputStream = new FileOutputStream(newFile);
-			fileOutputStream.write(data);
-			fileOutputStream.flush();
-			fileOutputStream.close();
-			System.out.println("File "+filename+" successfully recieved.");
-			
-			return true;
-			
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-		return false;
-	}
+	
 	
 	
 }
