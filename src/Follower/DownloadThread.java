@@ -17,8 +17,8 @@ public class DownloadThread implements Runnable {
 
 	public MasterConnection master_connection;
 	public static final String DEFAULT_SERVER_ADDRESS = "localhost";
-	public int DEFAULT_DOWNLOAD_SOCKET_PORT = 6001;
-	public int DEFAULT_DOWNLOAD_DATASOCKET_PORT = 6002;
+	public int DEFAULT_DOWNLOAD_SOCKET_PORT = 7001;
+	public int DEFAULT_DOWNLOAD_DATASOCKET_PORT = 7002;
 	public Socket downloadSocket;
 	public static DatagramSocket dataSocket;
 	private BufferedReader br;
