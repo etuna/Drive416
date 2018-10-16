@@ -1,13 +1,16 @@
 package Master;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -39,18 +42,7 @@ public class DownloadFollowerThread implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		while (downloadRun) {
-
-			try {
-
-				sendFilesToFollower(Main.syncFiles);
-				Thread.sleep(1000);
-
-			} catch (InterruptedException | NumberFormatException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		listenAndAccept();
 
 	}
 
@@ -75,6 +67,8 @@ public class DownloadFollowerThread implements Runnable {
 				pw.flush();
 				System.out.println("Client " + downloadSocket.getRemoteSocketAddress() + " requested file : " + line +" size :"+fileSize);
 
+				sendFileToFollower(line,fileSize);
+				
 			}
 
 		} catch (Exception e) {
@@ -104,33 +98,28 @@ public class DownloadFollowerThread implements Runnable {
 		return true;
 	}
 
-	public boolean sendFilesToFollower(ArrayList<SyncPair<Integer, String>> SyncFiles)
-			throws NumberFormatException, IOException {
-
-		return true;
-	}
-
-	public boolean sendFileToFollower(String filename) throws IOException {
+	public boolean sendFileToFollower(String filename,int fileSize) throws IOException {
 
 		try {
 
 			File fileToSend = findFile(filename);
-
+			FileInputStream fileInputStream = new FileInputStream(fileToSend);			
+			DataInputStream dataInputStream = new DataInputStream(fileInputStream);
+			
+			byte[] data = new byte[fileSize];
 			System.out.println("File is being sent... File name:" + filename);
 			dataSocket = new DatagramSocket(DEFAULT_DOWNLOAD_DATASOCKET_PORT);
 
-			byte[] data = new byte[fileSize];
-			String path = System.getProperty("user.home") + "/Desktop/GoogleDrive/" + filename;
-
-			DatagramPacket datagramPacket = new DatagramPacket(data, fileSize);
-			dataSocket.receive(datagramPacket);
-
-			File newFile = new File(path);
-			FileOutputStream fileOutputStream = new FileOutputStream(newFile);
-			fileOutputStream.write(data);
-			fileOutputStream.flush();
-			fileOutputStream.close();
-			System.out.println("File " + filename + " successfully recieved.");
+			int read = 0;
+			int numRead = 0;
+			
+			while(read < data.length && (numRead = dataInputStream.read(data, read, data.length - read)) >= 0) {
+				read += numRead;
+			}
+						
+			DatagramPacket datagramPacket = new DatagramPacket(data,data.length,Inet4Address.getLocalHost(),DEFAULT_DOWNLOAD_DATASOCKET_PORT);
+			dataSocket.send(datagramPacket);
+			System.out.println("File " + filename + " successfully sent.");
 
 			return true;
 
