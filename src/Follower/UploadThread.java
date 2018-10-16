@@ -152,11 +152,15 @@ public class UploadThread implements Runnable {
 			pw.println(message);
 			pw.flush();
 
-			// Read the size
-			int fileSize = Integer.parseInt(br.readLine());
+			// Send the size
+			File mFile = new File(""+follower.DESKTOP_PATH+"/GoogleDrive/"+file);
+			int fileSize = (int)mFile.length();
 
+			pw.println(""+fileSize);
+			pw.flush();
+			
 			// Download the file
-			uploadFile(new File(""+follower.DESKTOP_PATH+"/GoogleDrive/"+file));
+			uploadFile(mFile);
 		}
 
 		return true;

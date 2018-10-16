@@ -4,19 +4,21 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class UploadFollowerThread implements Runnable {
-	public MasterConnection master_connection;
+	public FollowerConnection follower_connection;
 	public static final String DEFAULT_SERVER_ADDRESS = "localhost";
 	public int DEFAULT_UPLOAD_SOCKET_PORT = 6001;
 	public int DEFAULT_UPLOAD_DATASOCKET_PORT = 6002;
@@ -24,141 +26,98 @@ public class UploadFollowerThread implements Runnable {
 	public static DatagramSocket dataSocket;
 	private BufferedReader br;
 	private PrintWriter pw;
-	private Follower follower;
+	private Master master;
 	public boolean uploadRun = true;
+	public ServerSocket serverSocket;
 
-	public UploadFollowerThread() {
-		master_connection = Main.master_connection;
-		follower= Main.follower;
+	public UploadFollowerThread() throws IOException {
+		follower_connection = Main.follower_connection;
+		master= Main.master;
+		serverSocket = new ServerSocket(DEFAULT_UPLOAD_DATASOCKET_PORT);
 	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		while(uploadRun) {
-			
-			try {
-				uploadFiles(Main.syncFiles);
-				Thread.sleep(1000);
-			} catch (InterruptedException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		listenAndAccept();
 
 	}
+	
+	
+	
+	public boolean listenAndAccept() {
+		
+		try {
+			/*
+			 * Casts a server socket to an ordinary socket
+			 */
+			uploadSocket = serverSocket.accept();
+			System.out.println("A connection was established with a FOLLOWER on the address of "
+					+ uploadSocket.getRemoteSocketAddress());
+			br = new BufferedReader(new InputStreamReader(uploadSocket.getInputStream()));
+			pw = new PrintWriter(uploadSocket.getOutputStream());
+
+			while (true) {
+				
+				String filename = br.readLine();
+				int fileSize = Integer.parseInt(br.readLine());
+				
+				try {
+					System.out.println("File downloading from FOLLOWER... File name:" + filename);
+					dataSocket = new DatagramSocket(DEFAULT_UPLOAD_DATASOCKET_PORT);
+
+					byte[] data = new byte[fileSize];
+					String path = System.getProperty("user.home") + "/Desktop/Master/GoogleDrive/" + filename;
+
+					DatagramPacket datagramPacket = new DatagramPacket(data, fileSize);
+					dataSocket.receive(datagramPacket);
+
+					File newFile = new File(path);
+					FileOutputStream fileOutputStream = new FileOutputStream(newFile);
+					fileOutputStream.write(data);
+					fileOutputStream.flush();
+					fileOutputStream.close();
+					System.out.println("File " + filename + " successfully recieved from FOLLOWER.");
+
+					return true;
+
+				} catch (SocketException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
+			}
+
+		} catch (Exception e) {
+			// e.printStackTrace();
+			System.err.println("Exception on listen and accept function on reading the line");
+		} finally {
+			try {
+				System.out.println("Closing the connection");
+				if (br != null) {
+					br.close();
+					System.out.println(" Socket Input Stream Closed");
+				}
+
+				if (pw != null) {
+					pw.close();
+					System.out.println("Socket Out Closed");
+				}
+				if (uploadSocket != null) {
+					uploadSocket.close();
+					System.out.println("Socket Closed");
+				}
+
+			} catch (IOException ie) {
+				System.out.println("Socket Close Error");
+			}
+		} // end finally
+		
+		return true;
+	}
+	
 
 	public void Start() {
 		System.out.println("Upload Thread has been started.");
 	}
-
-	public boolean Connect() {
-
-		try {
-			uploadSocket = new Socket(DEFAULT_SERVER_ADDRESS, DEFAULT_UPLOAD_SOCKET_PORT);
-			br = new BufferedReader(new InputStreamReader(uploadSocket.getInputStream()));
-			pw = new PrintWriter(uploadSocket.getOutputStream());
-
-			System.out.println("Connection Successful, address:" + DEFAULT_SERVER_ADDRESS + ", port :"
-					+ DEFAULT_UPLOAD_SOCKET_PORT);
-			return true;
-
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
-
-	public boolean Disconnect() {
-
-		try {
-			br.close();
-			pw.close();
-			uploadSocket.close();
-			System.out.println(
-					"Connection Closed. Address: " + DEFAULT_SERVER_ADDRESS + ", port:" + DEFAULT_UPLOAD_SOCKET_PORT);
-			return true;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
-
-	public boolean uploadFile(File f) throws IOException {
-
-		try {
-			System.out.println("File uploading... File name:" + f.getName());
-			dataSocket = new DatagramSocket();
-			FileInputStream fileInputStream = new FileInputStream(f);
-			DataInputStream dataInputStream = new DataInputStream(fileInputStream);
-
-			int fileSize = (int) f.length();
-
-			byte[] data = new byte[fileSize];
-			byte[] incomingData = new byte[1024];
-
-			int read = 0;
-			int numRead = 0;
-
-			while (read < data.length && (numRead = dataInputStream.read(data, read, data.length - read)) >= 0) {
-				read += numRead;
-			}
-
-			DatagramPacket datagramPacket = new DatagramPacket(data, data.length, Inet4Address.getLocalHost(),
-					DEFAULT_UPLOAD_DATASOCKET_PORT);
-			dataSocket.send(datagramPacket);
-
-			System.out.println("File " + f.getName() + " has been sent to the master.");
-
-			DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-			dataSocket.receive(incomingPacket);
-			String response = "" + incomingPacket.getData().toString();
-			System.out.println("Response from Master: " + response);
-
-			fileInputStream.close();
-			dataInputStream.close();
-			dataSocket.close();
-			System.out.println("File upload complete. File sent:" + f.getName());
-			return true;
-
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Error occured during the file upload!");
-		return false;
-	}
-
-	public boolean uploadFiles(ArrayList<SyncPair<Integer, String>> SyncFiles) throws IOException {
-
-		ArrayList<String> uploadList = new ArrayList<String>();
-
-		for (SyncPair p : SyncFiles) {
-			if (p.operation == 1) {
-				uploadList.add((String) p.file);
-			}
-		}
-
-		String message;
-		for (String file : uploadList) {
-
-			// Tell the file to the master
-			message = file;
-			pw.println(message);
-			pw.flush();
-
-			// Read the size
-			int fileSize = Integer.parseInt(br.readLine());
-
-			// Download the file
-			uploadFile(new File(""+follower.DESKTOP_PATH+"/GoogleDrive/"+file));
-		}
-
-		return true;
-	}
+	
 }

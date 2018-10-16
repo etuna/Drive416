@@ -27,6 +27,7 @@ public class SyncFollowerThread implements Runnable {
 	private Socket syncSocket;
 	private DatagramSocket dataSocket;
 	public boolean syncRun = true;
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
