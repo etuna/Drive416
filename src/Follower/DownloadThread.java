@@ -109,10 +109,10 @@ public class DownloadThread implements Runnable {
 			pw.flush();
 
 			// Read the size
-			int fileSize = Integer.parseInt(br.readLine());
-
-			// Download the file
-			downloadFile(file, fileSize);
+			System.out.println("What is the size of file "+file+"?");
+			
+			// Get the size and Download the file
+			downloadFile(file, Integer.parseInt(br.readLine()));
 		}
 
 		return true;

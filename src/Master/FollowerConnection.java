@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -25,13 +26,14 @@ public class FollowerConnection {
 	//Variables
 	private String followerAddress;
 	private int followerPort;
+    private ServerSocket serverSocket;
 	public static Socket socket;
 	public static DatagramSocket dataSocket;
 	public static BufferedReader br; //Input Stream
 	public static PrintWriter pw; //Output Stream
 	public static FollowerConnection follower_connection;
 	
-	public static FollowerConnection getInstance() {
+	public static FollowerConnection getInstance() throws IOException {
 		if(follower_connection == null) {
 			follower_connection = new FollowerConnection(DEFAULT_SERVER_ADDRESS, DEFAULT_SERVER_PORT);
 			return follower_connection;
@@ -41,9 +43,72 @@ public class FollowerConnection {
 	}
 	
 	
-	public FollowerConnection(String address, int port) {
+	public FollowerConnection(String address, int port) throws IOException {
 		followerAddress= address;
 		followerPort = port;
+		serverSocket = new ServerSocket(DEFAULT_SERVER_PORT);
+		System.out.println("Oppened up a server socket on " + port);
+	}
+	
+	
+	
+	public boolean listenAndAccept() {
+		
+		
+        try
+        {
+            /*
+            Casts a server socket to an ordinary socket
+             */
+            socket = serverSocket.accept();
+            System.out.println("A connection was established with a FOLLOWER on the address of " + socket.getRemoteSocketAddress());
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw = new PrintWriter(socket.getOutputStream());
+
+            String line = br.readLine();
+            while (line.compareTo("QUIT") != 0)
+            {
+
+                pw.println(line);
+                pw.flush();
+                System.out.println("Client " + socket.getRemoteSocketAddress() + " sent : " + line);
+                line = br.readLine();
+            }
+
+        }
+        catch (Exception e)
+        {
+            //e.printStackTrace();
+            System.err.println("Exception on listen and accept function on reading the line");
+        } finally
+        {
+            try
+            {
+                System.out.println("Closing the connection");
+                if (br != null)
+                {
+                    br.close();
+                    System.out.println(" Socket Input Stream Closed");
+                }
+
+                if (pw != null)
+                {
+                    pw.close();
+                    System.out.println("Socket Out Closed");
+                }
+                if (socket != null)
+                {
+                    socket.close();
+                    System.out.println("Socket Closed");
+                }
+
+            }
+            catch (IOException ie)
+            {
+                System.out.println("Socket Close Error");
+            }
+        }//end finally
+		return true;
 	}
 	
 	
