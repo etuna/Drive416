@@ -73,6 +73,9 @@ public class FollowerConnection {
                 pw.flush();
                 System.out.println("Client " + socket.getRemoteSocketAddress() + " sent : " + line);
                 line = br.readLine();
+                if(line.equalsIgnoreCase("quit")) {
+                	Disconnect();
+                }
             }
 
         }
@@ -139,6 +142,7 @@ public class FollowerConnection {
 			pw.close();
 			socket.close();
 			System.out.println("Connection Closed. Address: "+followerAddress+", port:"+followerPort);
+			System.exit(1);
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
